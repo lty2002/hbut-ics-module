@@ -14,6 +14,6 @@
 ## Deployment
 ```shell
 cd /path/to/project
-python3 -m pip install requirements.in
+python3 -m pip install -r requirements.in
 python3 app.py
 ```
