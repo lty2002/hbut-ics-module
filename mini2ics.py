@@ -1,10 +1,13 @@
 import pandas as pd
+from flask import abort
 from icalendar import Calendar, Event
 
 from config import *
 
 
 def mini2ics(semester: str, timetable: list, append_weeks: bool = False) -> str:
+    if not {'kname', 'timeWeek', 'kweekStr', 'teacherName', 'skLoc', 'timeJc'}.issubset(set(timetable[0].keys())):
+        abort(400, 'Invalid timetable')
     df = pd.DataFrame(timetable)
     # 以time、week、weeksArray、teacher、place为分组依据，统计每个课程的开始时间和持续节数
     event_df = df.groupby(['kname', 'timeWeek', 'kweekStr', 'teacherName', 'skLoc']).agg(
@@ -19,7 +22,7 @@ def mini2ics(semester: str, timetable: list, append_weeks: bool = False) -> str:
 
     # 获取配置定义，遍历每周的每个课程，生成ics
     weeks_count = get_weeks_count(semester)
-    semester_start_day = SEMESTERS_START_DAY[semester]
+    semester_start_day = get_start_day(semester)
 
     for week in range(weeks_count):  # 遍历每周
         # 添加周数标记

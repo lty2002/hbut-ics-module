@@ -17,14 +17,17 @@ SEMESTERS_START_DAY = {
 
 DEFAULT_WEEKS_COUNT = 18
 
-
-def get_weeks_count(semester):
-    return DEFAULT_WEEKS_COUNT if semester.endswith('1') else 19
-
-
 CLASS_START_TIME = ['08:20', '09:10', '10:15', '11:05',
                     '14:00', '14:50', '15:55', '16:45',
                     '18:30', '19:20', '20:10']
+
+
+def get_start_day(semester):
+    return SEMESTERS_START_DAY.get(semester, datetime.datetime(2023, 9, 4, 0, 0, 0))
+
+
+def get_weeks_count(semester):
+    return DEFAULT_WEEKS_COUNT if semester.endswith('1') else 19
 
 
 def get_hours_minutes(index):
