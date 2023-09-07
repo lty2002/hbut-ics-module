@@ -4,7 +4,7 @@ from icalendar import Calendar, Event
 from config import *
 
 
-def chengzi2ics(semester: str, timetable: list, append_weeks: bool = True) -> str:
+def chengzi2ics(semester: str, timetable: list, append_weeks: bool = False) -> str:
     df = pd.DataFrame(timetable)
     # 以time、week、weeksArray、teacher、place为分组依据，统计每个课程的开始时间和持续节数
     event_df = df.groupby(['name', 'week', 'weeksArray', 'teacher', 'place']).agg(
