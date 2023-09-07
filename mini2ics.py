@@ -57,7 +57,7 @@ def mini2ics(semester: str, timetable: list, append_weeks: bool = True) -> str:
                 cal_event.add('dtstart', start_time)
                 cal_event.add('dtend', end_time)
                 cal_event.add('location', event['skLoc'])
-                cal_event.add('description', event['teacher'] + '/第%d周' % (week + 1))
+                cal_event.add('description', event['teacherName'] + '/第%d周' % (week + 1))
                 # cal_event.add('key', 'value')  # 可扩展其他属性
 
                 cal.add_component(cal_event)
