@@ -1,8 +1,7 @@
 import pandas as pd
 from flask import abort
-from icalendar import Calendar, Event
 
-from config import *
+import timetable2ics
 
 
 def mini2ics(semester: str, timetable: list, append_weeks: bool = False) -> str:
@@ -16,53 +15,17 @@ def mini2ics(semester: str, timetable: list, append_weeks: bool = False) -> str:
     ).reset_index().sort_values(['timeWeek', 'start_at'])
     event_dict = event_df.to_dict(orient='records')
 
-    # 实例化cal
-    cal = Calendar()
-    cal.add('VERSION', '2.0')
+    # 转为标准化的timetable
+    # 注：kweekStr为逗号分隔字符串，转为列表
+    standard_timetable = list(map(lambda event: {
+        'week_array': event['kweekStr'].split(','),
+        'name': event['kname'],
+        'day_in_week': event['timeWeek'],
+        'start_at': event['start_at'],
+        'length': event['count'],
+        'teacher': event['teacherName'],
+        'location': event['skLoc']
+    }, event_dict))
+    course_list = list(map(lambda x: timetable2ics.Course.parse(**x), standard_timetable))
 
-    # 获取配置定义，遍历每周的每个课程，生成ics
-    weeks_count = get_weeks_count(semester)
-    semester_start_day = get_start_day(semester)
-
-    for week in range(weeks_count):  # 遍历每周
-        # 添加周数标记
-        if append_weeks:
-            start_time = semester_start_day + datetime.timedelta(weeks=week, hours=7, minutes=30)
-            end_time = semester_start_day + datetime.timedelta(weeks=week, hours=8, minutes=10)
-            cal_event = Event()
-            cal_event.add('summary', '第%d周' % (week + 1))
-            cal_event.add('dtstart', start_time)
-            cal_event.add('dtend', end_time)
-            cal_event.add('description', '第%d周' % (week + 1))
-
-            cal.add_component(cal_event)
-
-        for event in event_dict:  # 遍历每个课程
-            if str(week + 1) in event['kweekStr'].split(','):  # 如果这周有这个课程
-                # 生成开始时间和结束时间
-                hours, minutes = get_hours_minutes(event['start_at'] - 1)
-                start_time = semester_start_day + datetime.timedelta(
-                    weeks=week,
-                    days=int(event['timeWeek']) - 1,
-                    hours=hours,
-                    minutes=minutes)
-
-                hours, minutes = get_hours_minutes(event['start_at'] + event['count'] - 2)
-                end_time = semester_start_day + datetime.timedelta(
-                    weeks=week,
-                    days=int(event['timeWeek']) - 1,
-                    hours=hours,
-                    minutes=minutes + 45)
-
-                # 实例化cal_event
-                cal_event = Event()
-                cal_event.add('summary', '@'.join([event['kname'], event['skLoc']]))
-                cal_event.add('dtstart', start_time)
-                cal_event.add('dtend', end_time)
-                cal_event.add('location', event['skLoc'])
-                cal_event.add('description', event['teacherName'] + '/第%d周' % (week + 1))
-                # cal_event.add('key', 'value')  # 可扩展其他属性
-
-                cal.add_component(cal_event)
-
-    return cal.to_ical()
+    return timetable2ics.generate(semester, course_list, append_weeks)
