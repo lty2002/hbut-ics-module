@@ -1,3 +1,5 @@
+import logging
+
 import pandas as pd
 from flask import abort
 
@@ -8,6 +10,7 @@ def mini2ics(semester: str, timetable: list, append_weeks: bool = False) -> str:
     if not {'kname', 'timeWeek', 'kweekStr', 'teacherName', 'skLoc', 'timeJc'}.issubset(set(timetable[0].keys())):
         abort(400, 'Invalid timetable')
     df = pd.DataFrame(timetable)
+    logging.info(df.to_json(orient='records'))
     # 以time、week、weeksArray、teacher、place为分组依据，统计每个课程的开始时间和持续节数
     event_df = df.groupby(['kname', 'timeWeek', 'kweekStr', 'teacherName', 'skLoc']).agg(
         start_at=('timeJc', lambda x: int(x.iloc[0])),
