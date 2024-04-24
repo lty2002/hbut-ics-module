@@ -40,7 +40,7 @@ def mini2ics_v2(semester: str, timetable: list, append_weeks: bool = False) -> s
     df = pd.DataFrame(timetable)
     logging.info(df.to_json(orient='records'))
     # 以time、week、weeksArray、teacher、place为分组依据，统计每个课程的开始时间和持续节数
-    # 注⚠️：这里的section是一个字符串，格式为"start,length"，需要分割，取第一个值为start_at，取长度为count
+    # 注⚠️：这里的section是一个字符串，格式为"1,2,3,4"，需要分割，取第一个值为start_at，取列表长度为count
     event_df = df.groupby(['course_name', 'day', 'week', 'teacher', 'location']).agg(
         start_at=('section', lambda x: int(x.iloc[0].split(',')[0])),
         count=('section', lambda x: len(x.iloc[0].split(',')))
