@@ -15,5 +15,6 @@
 ```shell
 cd /path/to/project
 python3 -m pip install -r requirements.in
-python3 app.py
+python3 app.py                                    # dev env
+python3 -m gunicorn -c gunicorn_config.py app:app # prod env
 ```
